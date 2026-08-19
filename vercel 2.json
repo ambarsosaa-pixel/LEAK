@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/leak",
+      "destination": "/index.html"
+    }
+  ]
+}
