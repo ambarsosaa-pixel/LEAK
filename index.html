@@ -1,0 +1,1927 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LEAK — Descubrí cuánto dinero estás perdiendo sin darte cuenta</title>
+    <meta name="description" content="LEAK ayuda a descubrir gastos recurrentes ocultos y calcula cuánto podrías ahorrar.">
+    <meta name="theme-color" content="#F7F7F5">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='24' font-size='24' font-weight='900' fill='%23111111'>L</text></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* ==================== DESIGN TOKENS ==================== */
+        :root {
+            --color-bg-primary: #F7F7F5;
+            --color-bg-secondary: #FFFFFF;
+            --color-text-primary: #111111;
+            --color-text-secondary: #6B6B6B;
+            --color-cta-primary: #111111;
+            --color-cta-text: #FFFFFF;
+            --color-success: #22C55E;
+            --color-warning: #F59E0B;
+            --color-alert: #EF4444;
+            --color-border: #E5E5E3;
+            --color-hover: #2A2A2A;
+            
+            --space-xs: 4px;
+            --space-sm: 8px;
+            --space-md: 16px;
+            --space-lg: 24px;
+            --space-xl: 32px;
+            --space-2xl: 48px;
+            --space-3xl: 64px;
+            
+            --font-primary: 'Inter', sans-serif;
+            --transition-base: 250ms ease;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+        }
+        
+        /* ==================== RESET ==================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        body {
+            font-family: var(--font-primary);
+            background-color: var(--color-bg-primary);
+            color: var(--color-text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+        
+        button {
+            font-family: var(--font-primary);
+            cursor: pointer;
+            border: none;
+            background: none;
+            transition: all var(--transition-base);
+        }
+        
+        h1 {
+            font-size: 32px;
+            font-weight: 800;
+            line-height: 1.2;
+            letter-spacing: -0.02em;
+        }
+        
+        h2 {
+            font-size: 28px;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+        
+        h3 {
+            font-size: 20px;
+            font-weight: 700;
+        }
+        
+        p {
+            font-size: 16px;
+            color: var(--color-text-secondary);
+            line-height: 1.6;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 var(--space-lg);
+        }
+        
+        section {
+            padding: var(--space-3xl) 0;
+        }
+        
+        @media (max-width: 767px) {
+            h1 {
+                font-size: 28px;
+            }
+            h2 {
+                font-size: 24px;
+            }
+            section {
+                padding: var(--space-2xl) 0;
+            }
+        }
+        
+        /* ==================== BUTTONS ==================== */
+        .btn {
+            display: inline-block;
+            padding: 14px 28px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: var(--radius-lg);
+            cursor: pointer;
+            border: 2px solid transparent;
+            text-align: center;
+            white-space: nowrap;
+        }
+        
+        .btn-primary {
+            background-color: var(--color-cta-primary);
+            color: var(--color-cta-text);
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--color-hover);
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background-color: var(--color-bg-secondary);
+            color: var(--color-cta-primary);
+            border-color: var(--color-border);
+        }
+        
+        .btn-secondary:hover {
+            background-color: #F2F2F0;
+        }
+        
+        .btn-small {
+            padding: 10px 20px;
+            font-size: 14px;
+        }
+        
+        .btn-block {
+            width: 100%;
+            display: block;
+        }
+        
+        .btn-danger {
+            background-color: var(--color-alert);
+            color: var(--color-cta-text);
+            padding: 8px 12px;
+            font-size: 12px;
+        }
+        
+        /* ==================== NAVBAR ==================== */
+        .navbar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background-color: rgba(247, 247, 245, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--color-border);
+            padding: var(--space-lg) 0;
+        }
+        
+        .navbar-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: var(--space-lg);
+        }
+        
+        .navbar-logo {
+            font-size: 24px;
+            font-weight: 800;
+            cursor: pointer;
+        }
+        
+        .navbar-cta .btn-small {
+            font-size: 12px;
+        }
+        
+        /* ==================== SCREENS ==================== */
+        .screen {
+            display: none;
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        .screen.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* ==================== LANDING STYLES ==================== */
+        .hero-section {
+            min-height: 60vh;
+            display: flex;
+            align-items: center;
+            padding: var(--space-3xl) 0;
+        }
+        
+        .hero-content {
+            max-width: 600px;
+        }
+        
+        .hero-title {
+            margin-bottom: var(--space-lg);
+            font-size: 40px;
+        }
+        
+        .hero-subtitle {
+            font-size: 18px;
+            color: var(--color-text-secondary);
+            margin-bottom: var(--space-xl);
+            line-height: 1.7;
+        }
+        
+        .hero-cta-group {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-md);
+        }
+        
+        .hero-microcopy {
+            font-size: 14px;
+            color: var(--color-text-secondary);
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+        }
+        
+        .demo-dashboard {
+            background: linear-gradient(135deg, #FAFAF8 0%, var(--color-bg-secondary) 100%);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-lg);
+            padding: var(--space-2xl);
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--space-lg);
+        }
+        
+        .demo-card {
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: var(--space-lg);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--color-border);
+        }
+        
+        .demo-label {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: var(--color-text-secondary);
+            margin-bottom: var(--space-sm);
+        }
+        
+        .demo-number {
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--color-text-primary);
+            margin-bottom: var(--space-xs);
+        }
+        
+        .demo-subtext {
+            font-size: 13px;
+            color: var(--color-text-secondary);
+        }
+        
+        .demo-badge {
+            display: inline-block;
+            background-color: #FEF3C7;
+            color: #92400E;
+            padding: var(--space-xs) var(--space-sm);
+            border-radius: var(--radius-md);
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-top: var(--space-md);
+        }
+        
+        .problem-cards {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: var(--space-md);
+            margin: var(--space-2xl) 0;
+        }
+        
+        .problem-card {
+            background-color: var(--color-bg-secondary);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-lg);
+            padding: var(--space-lg);
+            text-align: center;
+            font-size: 22px;
+            font-weight: 700;
+        }
+        
+        .section-bg-alt {
+            background-color: #FAFAF8;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--space-xl);
+            margin-top: var(--space-2xl);
+        }
+        
+        .feature-card {
+            background-color: var(--color-bg-secondary);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-lg);
+            padding: var(--space-xl);
+            text-align: center;
+        }
+        
+        .feature-card h3 {
+            margin-bottom: var(--space-md);
+        }
+        
+        .feature-visual {
+            background-color: #F5F5F3;
+            border-radius: var(--radius-md);
+            padding: var(--space-lg);
+            margin-top: var(--space-lg);
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: var(--space-sm);
+        }
+        
+        .feature-value {
+            font-size: 28px;
+            font-weight: 800;
+        }
+        
+        .text-center {
+            text-align: center;
+        }
+        
+        /* ==================== APP HEADER ==================== */
+        .app-header {
+            padding: var(--space-lg) 0;
+            border-bottom: 1px solid var(--color-border);
+            margin-bottom: var(--space-lg);
+        }
+        
+        .app-header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .app-header-logo {
+            font-size: 24px;
+            font-weight: 800;
+        }
+        
+        .app-header-progress {
+            font-size: 14px;
+            color: var(--color-text-secondary);
+            font-weight: 500;
+        }
+        
+        .app-header-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--color-text-secondary);
+        }
+        
+        /* ==================== WELCOME SCREEN ==================== */
+        .welcome-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 60vh;
+            text-align: center;
+            padding: var(--space-2xl) 0;
+        }
+        
+        .welcome-logo {
+            font-size: 48px;
+            margin-bottom: var(--space-xl);
+        }
+        
+        .welcome-title {
+            margin-bottom: var(--space-md);
+        }
+        
+        .welcome-subtitle {
+            font-size: 18px;
+            color: var(--color-text-secondary);
+            max-width: 500px;
+            margin-bottom: var(--space-xl);
+        }
+        
+        .welcome-badge {
+            display: inline-block;
+            background-color: var(--color-success);
+            color: white;
+            padding: var(--space-xs) var(--space-md);
+            border-radius: var(--radius-md);
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: var(--space-2xl);
+        }
+        
+        /* ==================== FORMS ==================== */
+        .form-group {
+            margin-bottom: var(--space-lg);
+        }
+        
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: var(--space-sm);
+            color: var(--color-text-primary);
+        }
+        
+        .form-input, .form-select {
+            width: 100%;
+            padding: var(--space-md);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            font-family: var(--font-primary);
+            font-size: 16px;
+            color: var(--color-text-primary);
+            background-color: var(--color-bg-secondary);
+        }
+        
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--color-cta-primary);
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-md);
+        }
+        
+        /* ==================== SELECTORS ==================== */
+        .selector-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            gap: var(--space-md);
+            margin-bottom: var(--space-lg);
+        }
+        
+        .selector-btn {
+            padding: var(--space-md);
+            border: 2px solid var(--color-border);
+            background-color: var(--color-bg-secondary);
+            border-radius: var(--radius-lg);
+            font-weight: 500;
+            cursor: pointer;
+            text-align: center;
+        }
+        
+        .selector-btn.active {
+            border-color: var(--color-cta-primary);
+            background-color: var(--color-cta-primary);
+            color: var(--color-cta-text);
+        }
+        
+        .importance-scale {
+            display: flex;
+            gap: var(--space-md);
+            margin-bottom: var(--space-lg);
+            justify-content: center;
+        }
+        
+        .importance-btn {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            border: 2px solid var(--color-border);
+            background-color: var(--color-bg-secondary);
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .importance-btn.active {
+            border-color: var(--color-cta-primary);
+            background-color: var(--color-cta-primary);
+            color: var(--color-cta-text);
+            transform: scale(1.1);
+        }
+        
+        /* ==================== RESULTS ==================== */
+        .result-hero {
+            background: linear-gradient(135deg, #FAFAF8 0%, var(--color-bg-secondary) 100%);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-lg);
+            padding: var(--space-2xl);
+            text-align: center;
+            margin-bottom: var(--space-2xl);
+        }
+        
+        .result-number {
+            font-size: 56px;
+            font-weight: 800;
+            color: var(--color-text-primary);
+            line-height: 1.1;
+            margin: var(--space-lg) 0;
+        }
+        
+        .result-period {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--color-text-secondary);
+            margin-bottom: var(--space-lg);
+        }
+        
+        .leak-score-card {
+            background-color: var(--color-bg-secondary);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-lg);
+            padding: var(--space-2xl);
+            text-align: center;
+            margin-bottom: var(--space-2xl);
+        }
+        
+        .score-circle {
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            background: conic-gradient(
+                var(--color-text-primary) 0deg var(--score-degrees, 259.2deg),
+                var(--color-border) var(--score-degrees, 259.2deg) 360deg
+            );
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto var(--space-lg);
+        }
+        
+        .score-inner {
+            width: 145px;
+            height: 145px;
+            border-radius: 50%;
+            background-color: var(--color-bg-primary);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-sm);
+        }
+        
+        .score-value {
+            font-size: 36px;
+            font-weight: 800;
+        }
+        
+        .score-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--color-text-secondary);
+            text-transform: uppercase;
+        }
+        
+        .leaks-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: var(--space-lg);
+            margin-bottom: var(--space-2xl);
+        }
+        
+        .leak-card {
+            background-color: var(--color-bg-secondary);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-lg);
+            padding: var(--space-lg);
+        }
+        
+        .leak-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: var(--space-md);
+        }
+        
+        .leak-card-name {
+            font-size: 18px;
+            font-weight: 700;
+        }
+        
+        .leak-badge {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            padding: 4px 8px;
+            border-radius: var(--radius-md);
+            background-color: var(--color-alert);
+            color: white;
+        }
+        
+        .leak-badge.ok {
+            background-color: var(--color-success);
+        }
+        
+        .leak-card-amount {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: var(--space-xs);
+        }
+        
+        .leak-card-annual {
+            font-size: 13px;
+            color: var(--color-text-secondary);
+            margin-bottom: var(--space-sm);
+        }
+        
+        .leak-card-usage {
+            font-size: 13px;
+            color: var(--color-text-secondary);
+            padding-top: var(--space-sm);
+            border-top: 1px solid var(--color-border);
+        }
+        
+        .savings-card {
+            background: linear-gradient(135deg, #FAFAF8 0%, var(--color-bg-secondary) 100%);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-lg);
+            padding: var(--space-2xl);
+            text-align: center;
+            margin-bottom: var(--space-2xl);
+        }
+        
+        .savings-amount {
+            font-size: 48px;
+            font-weight: 800;
+            color: var(--color-success);
+            line-height: 1.1;
+            margin: var(--space-lg) 0;
+        }
+        
+        .expenses-list {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: var(--space-md);
+            margin-bottom: var(--space-2xl);
+        }
+        
+        .expense-item {
+            background-color: var(--color-bg-secondary);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-lg);
+            padding: var(--space-lg);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: var(--space-lg);
+        }
+        
+        .expense-info h4 {
+            margin-bottom: var(--space-xs);
+        }
+        
+        .expense-detail {
+            font-size: 13px;
+            color: var(--color-text-secondary);
+        }
+        
+        .expense-amount {
+            text-align: right;
+        }
+        
+        .expense-price {
+            font-size: 18px;
+            font-weight: 700;
+        }
+        
+        .expense-annual {
+            font-size: 12px;
+            color: var(--color-text-secondary);
+        }
+        
+        .expense-actions {
+            display: flex;
+            gap: var(--space-sm);
+        }
+        
+        .paywall-section {
+            background-color: var(--color-bg-secondary);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-lg);
+            padding: var(--space-2xl);
+            text-align: center;
+            margin-bottom: var(--space-2xl);
+        }
+        
+        .paywall-features {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: var(--space-md);
+            margin-bottom: var(--space-xl);
+            text-align: left;
+        }
+        
+        .paywall-feature {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            font-size: 14px;
+            color: var(--color-text-secondary);
+        }
+        
+        .paywall-feature::before {
+            content: "✓";
+            font-weight: 700;
+            color: var(--color-success);
+            flex-shrink: 0;
+        }
+        
+        /* ==================== PROGRESS ==================== */
+        .progress-bar {
+            height: 4px;
+            background-color: var(--color-border);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: var(--space-lg);
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background-color: var(--color-cta-primary);
+            transition: width var(--transition-base);
+        }
+        
+        /* ==================== LOADER ==================== */
+        .loader-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 60vh;
+            text-align: center;
+        }
+        
+        .spinner {
+            width: 48px;
+            height: 48px;
+            border: 3px solid var(--color-border);
+            border-top-color: var(--color-cta-primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: var(--space-lg);
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .loader-message {
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--color-text-secondary);
+        }
+        
+        /* ==================== MOBILE ==================== */
+        .sticky-cta {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: var(--color-bg-secondary);
+            border-top: 1px solid var(--color-border);
+            padding: var(--space-md) var(--space-lg);
+            z-index: 99;
+            opacity: 0;
+            transform: translateY(100%);
+            transition: all var(--transition-base);
+            display: none;
+        }
+        
+        .sticky-cta.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        @media (max-width: 767px) {
+            .sticky-cta {
+                display: flex;
+                gap: var(--space-md);
+            }
+            
+            .sticky-cta .btn {
+                flex: 1;
+            }
+            
+            body.has-sticky-cta {
+                padding-bottom: 80px;
+            }
+            
+            .problem-cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .demo-dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: var(--space-3xl) var(--space-lg);
+        }
+        
+        .mt-lg {
+            margin-top: var(--space-lg);
+        }
+        
+        .mt-xl {
+            margin-top: var(--space-xl);
+        }
+        
+        .mb-lg {
+            margin-bottom: var(--space-lg);
+        }
+        
+        .cta-group {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-md);
+            margin-top: var(--space-xl);
+        }
+    </style>
+</head>
+<body>
+    <!-- APP CONTAINER -->
+    <div id="app">
+        <!-- NAVBAR -->
+        <nav class="navbar" id="navbar">
+            <div class="container">
+                <div class="navbar-content">
+                    <div class="navbar-logo" onclick="app.navigate('/')">LEAK</div>
+                    <button class="btn btn-primary btn-small" onclick="app.navigate('/app')">PROBAR GRATIS</button>
+                </div>
+            </div>
+        </nav>
+        
+        <!-- SCREENS -->
+        
+        <!-- ==================== LANDING ==================== -->
+        <div class="screen active" id="screen-landing">
+            <!-- HERO -->
+            <section class="hero-section">
+                <div class="container">
+                    <div class="hero-content">
+                        <h1 class="hero-title">¿CUÁNTO DINERO ESTÁS PERDIENDO SIN DARTE CUENTA?</h1>
+                        <p class="hero-subtitle">LEAK analiza tus gastos recurrentes y te muestra cuáles podrías estar pagando de más.</p>
+                        <div class="hero-cta-group">
+                            <button class="btn btn-primary" onclick="app.navigate('/app')" style="padding: 16px 40px; font-size: 16px;">DESCUBRIR MIS FUGAS</button>
+                            <p class="hero-microcopy">
+                                <span>✓</span>
+                                <span>No necesitás conectar tu banco para empezar.</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- DEMO DASHBOARD -->
+            <section class="section-bg-alt">
+                <div class="container">
+                    <div class="demo-badge">Demo • Ejemplo</div>
+                    <div class="demo-dashboard">
+                        <div class="demo-card">
+                            <div class="demo-label">Gastos recurrentes</div>
+                            <div class="demo-number">$387</div>
+                            <div class="demo-subtext">/mes</div>
+                        </div>
+                        <div class="demo-card">
+                            <div class="demo-label">Proyectado anual</div>
+                            <div class="demo-number">$4,644</div>
+                            <div class="demo-subtext">/año</div>
+                        </div>
+                        <div class="demo-card">
+                            <div class="demo-label">Posibles fugas</div>
+                            <div class="demo-number">3</div>
+                            <div class="demo-subtext">detectadas</div>
+                        </div>
+                        <div class="demo-card">
+                            <div class="demo-label">Ahorro potencial</div>
+                            <div class="demo-number">$842</div>
+                            <div class="demo-subtext">/año</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- PROBLEM -->
+            <section>
+                <div class="container container-narrow" style="max-width: 700px; margin: 0 auto;">
+                    <h2 class="text-center mb-lg">UNO POR UNO NO PARECEN MUCHO.</h2>
+                    <div class="problem-cards">
+                        <div class="problem-card">$9.99</div>
+                        <div class="problem-card">$12.99</div>
+                        <div class="problem-card">$4.99</div>
+                        <div class="problem-card">$15</div>
+                        <div class="problem-card">$7.99</div>
+                    </div>
+                    <div style="text-align: center; padding: var(--space-2xl); background-color: #F5F5F3; border-radius: var(--radius-lg);">
+                        <p style="font-size: 18px; font-weight: 600; margin-bottom: var(--space-lg); color: var(--color-text-primary);">Pero juntos...</p>
+                        <div style="font-size: 48px; font-weight: 800; color: var(--color-text-primary); margin-bottom: var(--space-md);">$611</div>
+                        <p style="font-size: 16px; color: var(--color-text-secondary);">al año</p>
+                        <p style="font-size: 14px; color: var(--color-text-secondary); margin-top: var(--space-lg); font-style: italic;">* Ejemplo ilustrativo.</p>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- HOW IT WORKS -->
+            <section class="section-bg-alt">
+                <div class="container">
+                    <h2 class="text-center mb-lg">DESCUBRIR TUS FUGAS ES MÁS SIMPLE DE LO QUE PENSÁS.</h2>
+                    <div class="features-grid" style="grid-template-columns: repeat(3, 1fr);">
+                        <div class="feature-card">
+                            <h3>01 • AGREGÁ</h3>
+                            <p>Subí una captura o agregá un gasto manualmente.</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>02 • ANALIZÁ</h3>
+                            <p>LEAK calcula cuánto te cuesta realmente cada gasto.</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>03 • DESCUBRÍ</h3>
+                            <p>Encontrá cuáles vale la pena revisar primero.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- FEATURES -->
+            <section>
+                <div class="container">
+                    <h2 class="text-center mb-lg">NO SOLO TE DECIMOS CUÁNTO PAGÁS.</h2>
+                    <p class="text-center" style="max-width: 700px; margin: 0 auto var(--space-2xl);">Te ayudamos a ver lo que normalmente pasa desapercibido.</p>
+                    <div class="features-grid">
+                        <div class="feature-card">
+                            <h3>Costo Anual</h3>
+                            <p>Descubrí cuánto representan realmente tus gastos recurrentes.</p>
+                            <div class="feature-visual">
+                                <div class="feature-value">$180</div>
+                                <div>/año</div>
+                            </div>
+                        </div>
+                        <div class="feature-card">
+                            <h3>Leak Score</h3>
+                            <p>Un indicador simple para detectar qué gastos merecen una segunda mirada.</p>
+                            <div class="feature-visual">
+                                <div class="feature-value">72</div>
+                                <div>/ 100</div>
+                            </div>
+                        </div>
+                        <div class="feature-card">
+                            <h3>Costo Por Uso</h3>
+                            <p>¿Cuánto te cuesta realmente cada vez que utilizás un servicio?</p>
+                            <div class="feature-visual">
+                                <div class="feature-value">$8</div>
+                                <div>por uso</div>
+                            </div>
+                        </div>
+                        <div class="feature-card">
+                            <h3>Ahorro Potencial</h3>
+                            <p>Calculá cuánto podrías ahorrar si revisaras gastos que ya no necesitás.</p>
+                            <div class="feature-visual">
+                                <div class="feature-value">$396</div>
+                                <div>/año</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- LEAK SCORE INFO -->
+            <section class="section-bg-alt">
+                <div class="container" style="max-width: 700px;">
+                    <h2 class="text-center mb-lg">CONOCÉ TU LEAK SCORE.</h2>
+                    <div class="leak-score-card">
+                        <div class="score-circle">
+                            <div class="score-inner">
+                                <div class="score-value">72</div>
+                                <div class="score-label">/ 100</div>
+                            </div>
+                        </div>
+                        <p style="font-size: 16px; color: var(--color-text-secondary); margin-bottom: var(--space-md);">Un indicador simple para detectar qué gastos merecen una segunda mirada.</p>
+                        <p style="font-size: 13px; color: var(--color-text-secondary); font-style: italic;">El Leak Score es un indicador interno basado en tus datos. No es una métrica financiera oficial.</p>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- PRIVACY -->
+            <section>
+                <div class="container" style="max-width: 700px; margin: 0 auto; text-align: center;">
+                    <h2 class="mb-lg">NO NECESITÁS DARLE ACCESO A TU BANCO.</h2>
+                    <p style="font-size: 18px; margin-bottom: var(--space-2xl);">LEAK está diseñado para que puedas comenzar agregando tus gastos manualmente o mediante capturas.</p>
+                    <div class="features-grid" style="grid-template-columns: 1fr;">
+                        <div class="feature-card">
+                            <h3 style="font-size: 18px; margin-bottom: var(--space-md);">✓ Sin conexión bancaria</h3>
+                            <p>Comenzá sin conectar tu banco.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- CTA FINAL -->
+            <section class="section-bg-alt">
+                <div class="container" style="max-width: 700px; margin: 0 auto; text-align: center;">
+                    <h2 class="mb-lg">¿CUÁNTO PODRÍAS ESTAR PAGANDO SIN DARTE CUENTA?</h2>
+                    <p style="font-size: 18px; margin-bottom: var(--space-xl);">Descubrilo antes de seguir pagando.</p>
+                    <button class="btn btn-primary" onclick="app.navigate('/app')" style="padding: 16px 40px; font-size: 16px;">DESCUBRIR MIS FUGAS</button>
+                    <p style="font-size: 14px; color: var(--color-text-secondary); margin-top: var(--space-lg);">Gratis para empezar.</p>
+                </div>
+            </section>
+        </div>
+        
+        <!-- ==================== FREE APP ==================== -->
+        
+        <!-- WELCOME -->
+        <div class="screen" id="screen-welcome">
+            <div class="app-header">
+                <div class="container">
+                    <div class="app-header-content">
+                        <div class="app-header-logo">LEAK</div>
+                        <button class="app-header-close" onclick="app.navigate('/')">✕</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="container" style="max-width: 600px;">
+                <div class="welcome-screen">
+                    <div class="welcome-logo">💰</div>
+                    <div class="welcome-badge">Gratis para empezar</div>
+                    <h2 class="welcome-title">Descubramos dónde se te está escapando el dinero.</h2>
+                    <p class="welcome-subtitle">Agregá algunos gastos recurrentes y te mostraremos cuánto representan realmente.</p>
+                    <button class="btn btn-primary" onclick="app.navigate('/app/add')" style="padding: 16px 40px; font-size: 16px;">AGREGAR MI PRIMER GASTO</button>
+                    <p class="hero-microcopy" style="justify-content: center; margin-top: var(--space-lg);">
+                        <span>✓</span>
+                        <span>No necesitás conectar tu banco.</span>
+                    </p>
+                    <button class="btn btn-secondary" onclick="app.loadSampleData()" style="margin-top: var(--space-lg); width: 100%; max-width: 400px;">PROBAR CON DATOS DE EJEMPLO</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- ADD EXPENSE -->
+        <div class="screen" id="screen-add-expense">
+            <div class="app-header">
+                <div class="container">
+                    <div class="app-header-content">
+                        <div class="app-header-logo">LEAK</div>
+                        <div class="app-header-progress" id="expense-progress">Gasto 1</div>
+                        <button class="app-header-close" onclick="app.navigate('/app')">✕</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="container" style="max-width: 600px; padding-bottom: var(--space-2xl);">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-bar" style="width: 20%;"></div>
+                </div>
+                
+                <h2 style="margin-bottom: var(--space-lg);">Agregá un gasto.</h2>
+                
+                <form id="expenseForm">
+                    <div class="form-group">
+                        <label class="form-label">Nombre del servicio</label>
+                        <input type="text" id="expenseName" class="form-input" placeholder="Netflix" required>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Precio</label>
+                            <input type="number" id="expenseAmount" class="form-input" placeholder="15.99" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Moneda</label>
+                            <select id="expenseCurrency" class="form-select">
+                                <option value="USD">USD</option>
+                                <option value="ARS">ARS</option>
+                                <option value="EUR">EUR</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Frecuencia</label>
+                        <select id="expenseFrequency" class="form-select">
+                            <option value="monthly">Mensual</option>
+                            <option value="quarterly">Trimestral</option>
+                            <option value="annual">Anual</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Categoría</label>
+                        <select id="expenseCategory" class="form-select">
+                            <option value="entertainment">Entretenimiento</option>
+                            <option value="software">Software</option>
+                            <option value="music">Música</option>
+                            <option value="fitness">Fitness</option>
+                            <option value="other">Otros</option>
+                        </select>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-block" style="padding: 14px; margin-top: var(--space-lg);">CONTINUAR</button>
+                </form>
+            </div>
+        </div>
+        
+        <!-- USAGE -->
+        <div class="screen" id="screen-usage">
+            <div class="app-header">
+                <div class="container">
+                    <div class="app-header-content">
+                        <div class="app-header-logo">LEAK</div>
+                        <div class="app-header-progress" id="usage-progress">Gasto 1</div>
+                        <button class="app-header-close" onclick="app.navigate('/app')">✕</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="container" style="max-width: 600px; padding-bottom: var(--space-2xl);">
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 40%;"></div>
+                </div>
+                
+                <h2 style="margin-bottom: var(--space-lg);">¿Cuánto lo usás?</h2>
+                <p style="margin-bottom: var(--space-xl);" id="service-name-usage"></p>
+                
+                <div class="selector-group" id="usageSelector">
+                    <button type="button" class="selector-btn" data-value="never">Nunca</button>
+                    <button type="button" class="selector-btn" data-value="rare">1-2/mes</button>
+                    <button type="button" class="selector-btn" data-value="moderate">3-5/mes</button>
+                    <button type="button" class="selector-btn" data-value="frequent">6-10/mes</button>
+                    <button type="button" class="selector-btn" data-value="very_frequent">+10/mes</button>
+                </div>
+                
+                <button class="btn btn-primary btn-block" onclick="app.nextToImportance()" style="padding: 14px; margin-top: var(--space-lg);">CONTINUAR</button>
+            </div>
+        </div>
+        
+        <!-- IMPORTANCE -->
+        <div class="screen" id="screen-importance">
+            <div class="app-header">
+                <div class="container">
+                    <div class="app-header-content">
+                        <div class="app-header-logo">LEAK</div>
+                        <div class="app-header-progress" id="importance-progress">Gasto 1</div>
+                        <button class="app-header-close" onclick="app.navigate('/app')">✕</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="container" style="max-width: 600px; padding-bottom: var(--space-2xl);">
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 60%;"></div>
+                </div>
+                
+                <h2 style="margin-bottom: var(--space-lg);">¿Qué tan importante es?</h2>
+                <p style="color: var(--color-text-secondary); margin-bottom: var(--space-xl);">Esto ayuda a LEAK a identificar qué gastos vale la pena revisar.</p>
+                
+                <div class="importance-scale" id="importanceSelector">
+                    <button type="button" class="importance-btn" data-value="1">1</button>
+                    <button type="button" class="importance-btn" data-value="2">2</button>
+                    <button type="button" class="importance-btn" data-value="3">3</button>
+                    <button type="button" class="importance-btn" data-value="4">4</button>
+                    <button type="button" class="importance-btn" data-value="5">5</button>
+                </div>
+                
+                <button class="btn btn-primary btn-block" onclick="app.finishExpense()" style="padding: 14px; margin-top: var(--space-lg);">ANALIZAR</button>
+            </div>
+        </div>
+        
+        <!-- ANALYZE -->
+        <div class="screen" id="screen-analyze">
+            <div class="app-header">
+                <div class="container">
+                    <div class="app-header-content">
+                        <div class="app-header-logo">LEAK</div>
+                        <button class="app-header-close" onclick="app.navigate('/app')">✕</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="container" style="max-width: 600px; padding-bottom: var(--space-2xl);">
+                <div class="loader-screen">
+                    <div class="spinner"></div>
+                    <div class="loader-message" id="loader-message">Analizando tus gastos...</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- RESULT -->
+        <div class="screen" id="screen-result">
+            <div class="app-header">
+                <div class="container">
+                    <div class="app-header-content">
+                        <div class="app-header-logo">LEAK</div>
+                        <button class="app-header-close" onclick="app.navigate('/')">✕</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="container" style="max-width: 700px; padding-bottom: var(--space-2xl);">
+                <!-- FIRST RESULT -->
+                <div id="first-result" style="display: none;">
+                    <div class="result-hero">
+                        <p style="color: var(--color-text-secondary); margin-bottom: var(--space-lg);" id="expense-name-result"></p>
+                        <div class="result-number" id="monthly-result"></div>
+                        <div class="result-period">por mes</div>
+                        
+                        <p style="color: var(--color-text-secondary); margin: var(--space-lg) 0;">Después:</p>
+                        
+                        <div class="result-number" id="annual-result"></div>
+                        <div class="result-period">por año</div>
+                        
+                        <p style="font-size: 16px; color: var(--color-text-secondary); margin-top: var(--space-lg);">Eso es lo que este gasto representa realmente.</p>
+                    </div>
+                    
+                    <p style="text-align: center; color: var(--color-text-secondary); margin-bottom: var(--space-2xl);">Y ahora podemos compararlo con tus otros gastos.</p>
+                    
+                    <div class="cta-group">
+                        <button class="btn btn-primary btn-block" onclick="app.navigate('/app/add')" style="padding: 14px;">AGREGAR OTRO GASTO</button>
+                        <button class="btn btn-secondary btn-block" onclick="app.viewAnalysis()" style="padding: 14px;">VER MI ANÁLISIS</button>
+                    </div>
+                    
+                    <p style="text-align: center; color: var(--color-text-secondary); margin-top: var(--space-lg); font-size: 14px;">Agregá al menos 3 gastos para un análisis más útil: <span id="progress-expenses">1</span> / 3</p>
+                </div>
+                
+                <!-- FULL ANALYSIS -->
+                <div id="full-analysis" style="display: none;">
+                    <p style="text-align: center; color: var(--color-text-secondary); margin-bottom: var(--space-xl);">Encontramos algo.</p>
+                    
+                    <div class="result-hero">
+                        <div class="result-number" id="total-annual"></div>
+                        <div class="result-period">AL AÑO</div>
+                        <p style="font-size: 16px; color: var(--color-text-secondary); margin-top: var(--space-lg);">Esto es lo que representan tus gastos recurrentes.</p>
+                    </div>
+                    
+                    <div style="text-align: center; margin-bottom: var(--space-2xl); padding: var(--space-xl); background-color: #F5F5F3; border-radius: var(--radius-lg);">
+                        <p style="font-size: 14px; color: var(--color-text-secondary); margin-bottom: var(--space-md);">Gastos recurrentes mensuales</p>
+                        <div style="font-size: 40px; font-weight: 800; color: var(--color-text-primary);">
+                            $<span id="total-monthly">80.98</span>
+                            <span style="font-size: 18px; font-weight: 600; color: var(--color-text-secondary);">/mes</span>
+                        </div>
+                    </div>
+                    
+                    <!-- LEAK SCORE -->
+                    <div class="leak-score-card">
+                        <p class="demo-label">Tu Leak Score</p>
+                        <div class="score-circle">
+                            <div class="score-inner">
+                                <div class="score-value" id="score-value">61</div>
+                                <div class="score-label">/ 100</div>
+                            </div>
+                        </div>
+                        <p style="font-size: 16px; color: var(--color-text-secondary);" id="score-explanation">Varias posibles fugas</p>
+                        <p style="font-size: 12px; color: var(--color-text-secondary); margin-top: var(--space-md); font-style: italic;">El Leak Score es un indicador interno basado en tus datos. No es una métrica financiera oficial.</p>
+                    </div>
+                    
+                    <!-- POSSIBLE LEAKS -->
+                    <div style="margin-bottom: var(--space-2xl);">
+                        <h3 style="margin-bottom: var(--space-lg);">Encontramos <span id="leak-count">2</span> posibles fugas.</h3>
+                        <div class="leaks-grid" id="leaks-container"></div>
+                    </div>
+                    
+                    <!-- SAVINGS -->
+                    <div class="savings-card">
+                        <p class="demo-label">Tu ahorro potencial</p>
+                        <div class="savings-amount" id="savings-amount">$406</div>
+                        <div class="result-period">/año</div>
+                        <p style="font-size: 12px; color: var(--color-text-secondary); margin-top: var(--space-lg);">Si decidieras revisar los gastos que marcaste como menos importantes. <br><br>Esto es una estimación, no un ahorro garantizado.</p>
+                    </div>
+                    
+                    <!-- PAYWALL -->
+                    <div class="paywall-section">
+                        <h2 style="margin-bottom: var(--space-md);">Encontramos más oportunidades.</h2>
+                        <p style="margin-bottom: var(--space-xl);">Desbloqueá el análisis completo de LEAK.</p>
+                        <div class="paywall-features">
+                            <div class="paywall-feature">Ranking completo de fugas</div>
+                            <div class="paywall-feature">Análisis detallado costo/uso</div>
+                            <div class="paywall-feature">Alertas de renovación automática</div>
+                            <div class="paywall-feature">Historial de precios</div>
+                            <div class="paywall-feature">Insights personalizados</div>
+                            <div class="paywall-feature">Resumen mensual</div>
+                        </div>
+                        <button class="btn btn-primary btn-block" onclick="app.navigate('/app/premium')" style="padding: 14px;">DESBLOQUEAR LEAK PREMIUM</button>
+                    </div>
+                    
+                    <!-- EXPENSES LIST -->
+                    <div style="margin-top: var(--space-2xl);">
+                        <h3 style="margin-bottom: var(--space-lg);">Tus gastos</h3>
+                        <div class="expenses-list" id="expenses-list"></div>
+                        <button class="btn btn-secondary btn-block" onclick="app.navigate('/app/add')" style="padding: 14px;">+ AGREGAR OTRO</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- PREMIUM -->
+        <div class="screen" id="screen-premium">
+            <div class="app-header">
+                <div class="container">
+                    <div class="app-header-content">
+                        <div class="app-header-logo">LEAK</div>
+                        <button class="app-header-close" onclick="app.navigate('/app')">✕</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="container" style="max-width: 600px; padding-bottom: var(--space-2xl);">
+                <div class="paywall-section">
+                    <h2 style="margin-bottom: var(--space-md);">Encontramos más oportunidades.</h2>
+                    <p style="margin-bottom: var(--space-xl);">Desbloqueá el análisis completo de LEAK.</p>
+                    
+                    <div class="paywall-features" style="margin-bottom: var(--space-2xl);">
+                        <div class="paywall-feature">Ranking completo de fugas</div>
+                        <div class="paywall-feature">Análisis detallado costo/uso</div>
+                        <div class="paywall-feature">Alertas de renovación automática</div>
+                        <div class="paywall-feature">Historial de precios</div>
+                        <div class="paywall-feature">Insights personalizados</div>
+                        <div class="paywall-feature">Resumen mensual</div>
+                    </div>
+                    
+                    <div style="text-align: center; padding: var(--space-2xl); background-color: #F5F5F3; border-radius: var(--radius-lg); margin-bottom: var(--space-2xl);">
+                        <p style="font-size: 14px; color: var(--color-text-secondary); margin-bottom: var(--space-lg);">Próximamente</p>
+                        <p style="font-size: 12px; color: var(--color-text-secondary); font-style: italic;">Pricing a definir</p>
+                    </div>
+                    
+                    <button class="btn btn-primary btn-block" style="padding: 14px; opacity: 0.5;" disabled>PRÓXIMAMENTE</button>
+                    <button class="btn btn-secondary btn-block" onclick="app.navigate('/app')" style="padding: 14px; margin-top: var(--space-md);">VOLVER</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- MOBILE STICKY CTA -->
+    <div class="sticky-cta" id="sticky-cta">
+        <button class="btn btn-primary" onclick="app.navigate('/app')" style="margin: 0; flex: 1;">DESCUBRIR MIS FUGAS</button>
+        <button class="sticky-cta-close" id="sticky-cta-close">✕</button>
+    </div>
+    
+    <script>
+        // ==================== SANITIZATION ====================
+        function escapeHTML(value) {
+            if (typeof value !== 'string') return String(value);
+            const div = document.createElement('div');
+            div.textContent = value;
+            return div.innerHTML;
+        }
+        
+        // ==================== CONFIG ==================== 
+        const CONFIG = {
+            FREE_MAX_EXPENSES: 999,
+            FREE_ANALYSIS_DEPTH: 'basic',
+            LEAK_SCORE_THRESHOLD: 60
+        };
+        
+        // ==================== CENTRAL CALCULATION FUNCTION ====================
+        function calculateAnalysis(expenses) {
+            if (!expenses || expenses.length === 0) {
+                return {
+                    monthlyTotal: 0,
+                    annualTotal: 0,
+                    leakScore: 0,
+                    possibleLeaks: [],
+                    savingsPotential: 0,
+                    expenseCount: 0,
+                    scoreDescription: 'Sin datos'
+                };
+            }
+            
+            // Calculate totals
+            const annualTotal = expenses.reduce((sum, e) => sum + (e.annualCost || 0), 0);
+            const monthlyTotal = annualTotal / 12;
+            
+            // Calculate individual leak scores if not already calculated
+            const expensesWithScores = expenses.map(e => ({
+                ...e,
+                leakScore: e.leakScore || calculateLeakScore(e)
+            }));
+            
+            // Calculate average leak score
+            const avgLeakScore = Math.round(
+                expensesWithScores.reduce((sum, e) => sum + e.leakScore, 0) / expensesWithScores.length
+            );
+            
+            // Get score description
+            let scoreDescription = '';
+            if (avgLeakScore <= 20) scoreDescription = 'Todo bajo control';
+            else if (avgLeakScore <= 50) scoreDescription = 'Algunas cosas para revisar';
+            else if (avgLeakScore <= 80) scoreDescription = 'Varias posibles fugas';
+            else scoreDescription = 'Muchas cosas para revisar';
+            
+            // Filter possible leaks (score > threshold)
+            const possibleLeaks = expensesWithScores
+                .filter(e => e.leakScore > CONFIG.LEAK_SCORE_THRESHOLD)
+                .sort((a, b) => b.leakScore - a.leakScore);
+            
+            // Calculate savings potential (importance <= 2)
+            const savingsPotential = expensesWithScores
+                .filter(e => e.importance <= 2)
+                .reduce((sum, e) => sum + (e.annualCost || 0), 0);
+            
+            return {
+                monthlyTotal: parseFloat(monthlyTotal.toFixed(2)),
+                annualTotal: parseFloat(annualTotal.toFixed(2)),
+                leakScore: avgLeakScore,
+                scoreDescription,
+                possibleLeaks,
+                savingsPotential: parseFloat(savingsPotential.toFixed(2)),
+                expenseCount: expenses.length
+            };
+        }
+        
+        // ==================== LEAK SCORE CALCULATION ====================
+        function calculateLeakScore(expense) {
+            if (!expense) return 0;
+            
+            let score = 50; // Base
+            
+            // Annual cost factor
+            if (expense.annualCost > 200) score += 15;
+            if (expense.annualCost > 500) score += 15;
+            
+            // Usage factor (lower usage = higher score)
+            const usageMap = {
+                never: 30,
+                rare: 20,
+                moderate: 10,
+                frequent: 5,
+                very_frequent: 0
+            };
+            score += (usageMap[expense.usage] || 0);
+            
+            // Importance factor (lower importance = higher score)
+            score -= ((expense.importance || 3) * 3);
+            
+            return Math.max(0, Math.min(100, score));
+        }
+        
+        // ==================== APP STATE ==================== 
+        window.app = {
+            currentScreen: 'landing',
+            expenses: [],
+            currentExpense: {
+                name: '',
+                amount: 0,
+                currency: 'USD',
+                frequency: 'monthly',
+                category: 'entertainment',
+                usage: null,
+                importance: null
+            },
+            demoMode: false,
+            analysisCache: null,
+            
+            // Navigation
+            navigate(route) {
+                this.hideAllScreens();
+                
+                if (route === '/') {
+                    this.currentScreen = 'landing';
+                    document.getElementById('screen-landing').classList.add('active');
+                    document.getElementById('navbar').style.display = 'block';
+                    this.trackEvent('landing_viewed');
+                } else if (route === '/app') {
+                    if (this.expenses.length === 0) {
+                        this.currentScreen = 'welcome';
+                        document.getElementById('screen-welcome').classList.add('active');
+                        this.trackEvent('free_app_started');
+                    } else {
+                        this.currentScreen = 'result';
+                        this.showResult();
+                    }
+                    document.getElementById('navbar').style.display = 'none';
+                } else if (route === '/app/add') {
+                    this.currentScreen = 'add-expense';
+                    document.getElementById('screen-add-expense').classList.add('active');
+                    document.getElementById('navbar').style.display = 'none';
+                    this.resetExpenseForm();
+                    this.updateProgressBar();
+                } else if (route === '/app/usage') {
+                    this.currentScreen = 'usage';
+                    document.getElementById('screen-usage').classList.add('active');
+                    document.getElementById('navbar').style.display = 'none';
+                } else if (route === '/app/importance') {
+                    this.currentScreen = 'importance';
+                    document.getElementById('screen-importance').classList.add('active');
+                    document.getElementById('navbar').style.display = 'none';
+                } else if (route === '/app/analyze') {
+                    this.currentScreen = 'analyze';
+                    document.getElementById('screen-analyze').classList.add('active');
+                    document.getElementById('navbar').style.display = 'none';
+                    this.runAnalysis();
+                } else if (route === '/app/premium') {
+                    this.currentScreen = 'premium';
+                    document.getElementById('screen-premium').classList.add('active');
+                    document.getElementById('navbar').style.display = 'none';
+                    this.trackEvent('premium_viewed', {
+                        expense_count: this.expenses.length
+                    });
+                }
+                
+                window.scrollTo(0, 0);
+            },
+            
+            hideAllScreens() {
+                document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            },
+            
+            updateProgressBar() {
+                const expenseNum = this.expenses.length + 1;
+                document.getElementById('expense-progress').textContent = `Gasto ${expenseNum}`;
+                document.getElementById('usage-progress').textContent = `Gasto ${expenseNum}`;
+                document.getElementById('importance-progress').textContent = `Gasto ${expenseNum}`;
+                
+                const progress = (expenseNum / 3) * 100;
+                document.getElementById('progress-bar').style.width = progress + '%';
+            },
+            
+            resetExpenseForm() {
+                document.getElementById('expenseForm').reset();
+                this.currentExpense = {
+                    name: '',
+                    amount: 0,
+                    currency: 'USD',
+                    frequency: 'monthly',
+                    category: 'entertainment',
+                    usage: null,
+                    importance: null
+                };
+            },
+            
+            saveExpenseForm() {
+                const form = document.getElementById('expenseForm');
+                if (!form.checkValidity()) {
+                    alert('Por favor completa todos los campos');
+                    return false;
+                }
+                
+                this.currentExpense.name = document.getElementById('expenseName').value;
+                this.currentExpense.amount = parseFloat(document.getElementById('expenseAmount').value);
+                this.currentExpense.currency = document.getElementById('expenseCurrency').value;
+                this.currentExpense.frequency = document.getElementById('expenseFrequency').value;
+                this.currentExpense.category = document.getElementById('expenseCategory').value;
+                
+                document.getElementById('service-name-usage').textContent = this.currentExpense.name;
+                
+                return true;
+            },
+            
+            nextToUsage() {
+                if (!this.saveExpenseForm()) return;
+                this.navigate('/app/usage');
+            },
+            
+            nextToImportance() {
+                const selected = document.querySelector('#usageSelector .selector-btn.active');
+                if (!selected) {
+                    alert('Selecciona una opción');
+                    return;
+                }
+                this.currentExpense.usage = selected.dataset.value;
+                this.navigate('/app/importance');
+            },
+            
+            finishExpense() {
+                const selected = document.querySelector('#importanceSelector .importance-btn.active');
+                if (!selected) {
+                    alert('Selecciona una importancia');
+                    return;
+                }
+                this.currentExpense.importance = parseInt(selected.dataset.value);
+                
+                const frequencyMap = {
+                    weekly: 52,
+                    monthly: 12,
+                    quarterly: 4,
+                    annual: 1
+                };
+                this.currentExpense.annualCost = this.currentExpense.amount * (frequencyMap[this.currentExpense.frequency] || 1);
+                this.currentExpense.monthlyCost = this.currentExpense.annualCost / 12;
+                this.currentExpense.id = Date.now();
+                this.currentExpense.createdAt = new Date().toISOString();
+                // Use global calculateLeakScore function
+                this.currentExpense.leakScore = calculateLeakScore(this.currentExpense);
+                
+                this.expenses.push({...this.currentExpense});
+                this.saveToLocalStorage();
+                
+                this.trackEvent('expense_added', {
+                    expense_name: this.currentExpense.name,
+                    expense_count: this.expenses.length
+                });
+                
+                this.navigate('/app/analyze');
+            },
+            
+            runAnalysis() {
+                setTimeout(() => {
+                    this.navigate('/app');
+                }, 1500);
+            },
+            
+            viewAnalysis() {
+                if (this.expenses.length >= 3) {
+                    this.navigate('/app');
+                } else {
+                    alert(`Agregá ${3 - this.expenses.length} gasto(s) más para ver el análisis completo`);
+                }
+            },
+            
+            showResult() {
+                const firstResult = document.getElementById('first-result');
+                const fullAnalysis = document.getElementById('full-analysis');
+                
+                if (this.expenses.length < 3) {
+                    firstResult.style.display = 'block';
+                    fullAnalysis.style.display = 'none';
+                    
+                    // Use most recent expense (all data calculated dynamically)
+                    const expense = this.expenses[this.expenses.length - 1];
+                    document.getElementById('expense-name-result').textContent = expense.name;
+                    document.getElementById('monthly-result').textContent = `$${expense.monthlyCost.toFixed(2)}`;
+                    document.getElementById('annual-result').textContent = `$${expense.annualCost.toFixed(2)}`;
+                    document.getElementById('progress-expenses').textContent = this.expenses.length;
+                    
+                    this.trackEvent('first_result_viewed', {
+                        expense_name: expense.name,
+                        expense_count: this.expenses.length
+                    });
+                } else {
+                    firstResult.style.display = 'none';
+                    fullAnalysis.style.display = 'block';
+                    this.renderFullAnalysis();
+                    
+                    this.trackEvent('full_analysis_viewed', {
+                        expense_count: this.expenses.length
+                    });
+                }
+            },
+            
+            renderFullAnalysis() {
+                // Use central calculation function - SINGLE SOURCE OF TRUTH
+                const analysis = calculateAnalysis(this.expenses);
+                this.analysisCache = analysis;
+                
+                // Update DOM with calculated values
+                document.getElementById('total-annual').textContent = `$${analysis.annualTotal}`;
+                document.getElementById('total-monthly').textContent = analysis.monthlyTotal.toFixed(2);
+                document.getElementById('score-value').textContent = analysis.leakScore;
+                document.getElementById('score-explanation').textContent = analysis.scoreDescription;
+                
+                // Update score circle visual
+                document.documentElement.style.setProperty('--score-degrees', `${(analysis.leakScore / 100) * 360}deg`);
+                
+                // Render possible leaks
+                document.getElementById('leak-count').textContent = analysis.possibleLeaks.length;
+                
+                const leaksContainer = document.getElementById('leaks-container');
+                leaksContainer.innerHTML = '';
+                analysis.possibleLeaks.forEach(leak => {
+                    const usageText = this.getUsageText(leak.usage);
+                    leaksContainer.innerHTML += `
+                        <div class="leak-card">
+                            <div class="leak-card-header">
+                                <div class="leak-card-name">${escapeHTML(leak.name)}</div>
+                                <div class="leak-badge">REVISAR</div>
+                            </div>
+                            <div class="leak-card-amount">$${leak.amount.toFixed(2)}</div>
+                            <div class="leak-card-annual">/${this.getFrequencyText(leak.frequency)} • $${leak.annualCost.toFixed(2)}/año</div>
+                            <div class="leak-card-usage">Uso: ${usageText}</div>
+                        </div>
+                    `;
+                });
+                
+                // Render savings potential
+                document.getElementById('savings-amount').textContent = `$${analysis.savingsPotential}`;
+                
+                // Render expenses list
+                const expensesList = document.getElementById('expenses-list');
+                expensesList.innerHTML = '';
+                this.expenses.forEach(expense => {
+                    expensesList.innerHTML += `
+                        <div class="expense-item">
+                            <div class="expense-info">
+                                <h4>${escapeHTML(expense.name)}</h4>
+                                <div class="expense-detail">${this.getCategoryText(expense.category)}</div>
+                            </div>
+                            <div class="expense-amount">
+                                <div class="expense-price">$${expense.amount.toFixed(2)}</div>
+                                <div class="expense-annual">$${expense.annualCost.toFixed(2)}/año</div>
+                            </div>
+                            <div class="expense-actions">
+                                <button class="btn btn-danger" onclick="app.deleteExpense(${expense.id})">×</button>
+                            </div>
+                        </div>
+                    `;
+                });
+            },
+            
+            deleteExpense(id) {
+                this.expenses = this.expenses.filter(e => e.id !== id);
+                this.saveToLocalStorage();
+                
+                // Invalidate cache and recalculate
+                this.analysisCache = null;
+                
+                // Re-render results with recalculated values
+                this.showResult();
+                
+                this.trackEvent('expense_deleted', {
+                    expense_count: this.expenses.length
+                });
+            },
+            
+            getUsageText(usage) {
+                const map = {
+                    never: 'Nunca',
+                    rare: '1-2 veces/mes',
+                    moderate: '3-5 veces/mes',
+                    frequent: '6-10 veces/mes',
+                    very_frequent: '+10 veces/mes'
+                };
+                return map[usage] || '';
+            },
+            
+            getFrequencyText(freq) {
+                const map = {
+                    weekly: 'semana',
+                    monthly: 'mes',
+                    quarterly: 'trimestre',
+                    annual: 'año'
+                };
+                return map[freq] || '';
+            },
+            
+            getCategoryText(cat) {
+                const map = {
+                    entertainment: 'Entretenimiento',
+                    software: 'Software',
+                    music: 'Música',
+                    storage: 'Almacenamiento',
+                    fitness: 'Fitness',
+                    education: 'Educación',
+                    other: 'Otros'
+                };
+                return map[cat] || '';
+            },
+            
+            loadSampleData() {
+                this.demoMode = true;
+                const sampleExpenses = [
+                    { id: 1, name: 'Netflix', amount: 15.99, currency: 'USD', frequency: 'monthly', category: 'entertainment', usage: 'rare', importance: 2, annualCost: 191.88, monthlyCost: 15.99, createdAt: new Date().toISOString() },
+                    { id: 2, name: 'Spotify', amount: 11.99, currency: 'USD', frequency: 'monthly', category: 'music', usage: 'very_frequent', importance: 5, annualCost: 143.88, monthlyCost: 11.99, createdAt: new Date().toISOString() },
+                    { id: 3, name: 'Canva', amount: 15, currency: 'USD', frequency: 'monthly', category: 'software', usage: 'rare', importance: 1, annualCost: 180, monthlyCost: 15, createdAt: new Date().toISOString() },
+                    { id: 4, name: 'iCloud', amount: 2.99, currency: 'USD', frequency: 'monthly', category: 'storage', usage: 'never', importance: 1, annualCost: 35.88, monthlyCost: 2.99, createdAt: new Date().toISOString() },
+                    { id: 5, name: 'Gym', amount: 35, currency: 'USD', frequency: 'monthly', category: 'fitness', usage: 'moderate', importance: 4, annualCost: 420, monthlyCost: 35, createdAt: new Date().toISOString() }
+                ];
+                
+                // Calculate leak scores dynamically using global function
+                this.expenses = sampleExpenses.map(expense => ({
+                    ...expense,
+                    leakScore: calculateLeakScore(expense)
+                }));
+                
+                this.saveToLocalStorage();
+                this.trackEvent('demo_started', { expense_count: this.expenses.length });
+                this.navigate('/app');
+            },
+            
+            saveToLocalStorage() {
+                try {
+                    localStorage.setItem('leak_expenses', JSON.stringify(this.expenses));
+                    localStorage.setItem('leak_demo_mode', this.demoMode ? 'true' : 'false');
+                } catch (error) {
+                    console.warn('LEAK: no se pudo guardar en el navegador.', error);
+                }
+            },
+            
+            loadFromLocalStorage() {
+                try {
+                    const stored = localStorage.getItem('leak_expenses');
+                    if (stored) {
+                        const parsed = JSON.parse(stored);
+                        this.expenses = Array.isArray(parsed) ? parsed : [];
+                    }
+                    this.demoMode = localStorage.getItem('leak_demo_mode') === 'true';
+                } catch (error) {
+                    console.warn('LEAK: datos guardados inválidos; se inicia vacío.', error);
+                    this.expenses = [];
+                    this.demoMode = false;
+                }
+            },
+            
+            trackEvent(eventName, data = {}) {
+                const event = {
+                    timestamp: new Date().toISOString(),
+                    eventName,
+                    demoMode: this.demoMode,
+                    ...data
+                };
+                console.log('[TRACKING]', event);
+                
+                // Ready for GA4 integration:
+                // if (window.gtag) gtag('event', eventName, data);
+                
+                // Ready for Meta Pixel integration:
+                // if (window.fbq) fbq('track', eventName);
+            },
+            
+            init() {
+                this.loadFromLocalStorage();
+                
+                // Form submission
+                const expenseForm = document.getElementById('expenseForm');
+                if (expenseForm) {
+                    expenseForm.addEventListener('submit', (e) => {
+                        e.preventDefault();
+                        this.trackEvent('expense_started');
+                        this.nextToUsage();
+                    });
+                }
+                
+                // Usage selector
+                document.querySelectorAll('#usageSelector .selector-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        document.querySelectorAll('#usageSelector .selector-btn').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                    });
+                });
+                
+                // Importance selector
+                document.querySelectorAll('#importanceSelector .importance-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        document.querySelectorAll('#importanceSelector .importance-btn').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                    });
+                });
+                
+                // Sticky CTA mobile
+                const stickyCTA = document.getElementById('sticky-cta');
+                const closeBtn = document.getElementById('sticky-cta-close');
+                const heroSection = document.querySelector('.hero-section');
+                
+                if (heroSection) {
+                    window.addEventListener('scroll', () => {
+                        const rect = heroSection.getBoundingClientRect();
+                        if (rect.bottom < 0) {
+                            stickyCTA.classList.add('visible');
+                            document.body.classList.add('has-sticky-cta');
+                        } else {
+                            stickyCTA.classList.remove('visible');
+                            document.body.classList.remove('has-sticky-cta');
+                        }
+                    });
+                }
+                
+                if (closeBtn) {
+                    closeBtn.addEventListener('click', () => {
+                        stickyCTA.classList.remove('visible');
+                        document.body.classList.remove('has-sticky-cta');
+                    });
+                }
+                
+                // Track landing view
+                this.trackEvent('landing_view');
+            }
+        };
+
+        // Explicit global alias: avoids browser differences when inline onclick="app...." handlers run.
+        const app = window.app;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            app.init();
+        });
+    </script>
+</body>
+</html>
